@@ -20,7 +20,7 @@ class Entity(models.Model):
 
     name = models.CharField(max_length=253)
     notes = models.CharField(max_length=255, default=None, blank=True, null=True)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    address = models.ManyToManyField(Address)
     status = models.CharField(max_length=4, choices=Status.choices, default=Status.DOWN)
     os = models.CharField(max_length=255, default=None, blank=True, null=True)
     type = models.CharField(max_length=255, default=None, blank=True, null=True)

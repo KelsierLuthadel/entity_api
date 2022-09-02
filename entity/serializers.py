@@ -16,7 +16,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class EntitySerializer(serializers.ModelSerializer):
-    address = AddressSerializer()
+    address = AddressSerializer(many=True)
 
     class Meta:
         model = Entity
@@ -32,10 +32,15 @@ class EntitySerializer(serializers.ModelSerializer):
             'last_seen',
         )
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        return rep
+
     def create(self, validated_data):
         validated_address = validated_data.pop('address')
-        address = Address.objects.create(**validated_address)
-        instance = Entity.objects.create(**validated_data, address=address)
+        instance = Entity.objects.create(**validated_data)
+
+        for address in validated_address:
+            instance.address.create(**address)
+
         return instance
-
-
