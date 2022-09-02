@@ -45,6 +45,7 @@ THIRD_PARTY = [
     'rest_framework.authtoken',
     'corsheaders',
     'drf_spectacular',
+    'django_filters',
 ]
 
 LOCAL = [
