@@ -37,6 +37,26 @@ class EntityTests(TestCase):
             "last_seen": "2022-09-03T09:39:20.922387"
         }
 
+        cls.bad_uuid = {
+            "name": "Sky router",
+            "notes": "SKY+",
+            "type": "Router",
+            "hardware": "Sky",
+            "address": [
+                {
+                    "hostname": "localhost",
+                    "ip_v4": "192.168.0.1",
+                    "ip_v6": "::1",
+                    "resource": [],
+                    "mac_address": "1234",
+                    "mac_vendor": "Extel"
+                }
+            ],
+            "status": "UP",
+            "first_seen": "2022-09-03T09:39:20.922387",
+            "last_seen": "2022-09-03T09:39:20.922387"
+        }
+
         cls.extended_entity = {
             "name": "Rogue Access Point",
             "notes": "Rogue",
@@ -92,9 +112,21 @@ class EntityTests(TestCase):
         pass
 
     def test_bad(self):
-        response = self.client.post('/api/v1/entities/', {})
+        response = self.client.post('/api/v1/entities/', {}, content_type='application/json')
         self.assertEqual(response.status_code, 400)
-        # todo assert error
+
+    def test_uuid_failure(self):
+        uuid_bad = {
+            "name": "Sky router",
+            "address": [{
+                "mac_address": "1234",
+                "resource": []
+            }]
+        }
+
+        response = self.client.post('/api/v1/entities/', uuid_bad, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['address'][0].get('mac_address')[0], 'MAC Address must be valid')
 
     def test_post(self):
         self.create_entity()
@@ -148,6 +180,9 @@ class EntityTests(TestCase):
         resource = address.get('resource')
         self.assertEqual(resource[0].get('notes'), "Notes")
 
+        self.assertEqual(entity.get('first_seen'), '2022-09-03T09:39:20.922387Z')
+        self.assertEqual(entity.get('last_seen'), '2022-09-03T09:39:20.922387Z')
+
     def test_swap_models(self):
         self.update_entity_model(self.extended_entity)
 
@@ -167,8 +202,6 @@ class EntityTests(TestCase):
 
         self.assertEqual(addresses.count(), 1)
         self.assertEqual(resources.count(), 2)
-
-
 
     # Helper methods
 
