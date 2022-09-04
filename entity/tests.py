@@ -37,6 +37,50 @@ class EntityTests(TestCase):
             "last_seen": "2022-09-03T09:39:20.922387"
         }
 
+        cls.extended_entity = {
+            "name": "Rogue Access Point",
+            "notes": "Rogue",
+            "type": "Hacker",
+            "hardware": "RaspberryPi",
+            "address": [
+                {
+                    "hostname": "localhost",
+                    "ip_v4": "10.0.0.1",
+                    "ip_v6": "::1",
+                    "resource": [{
+                        "port": 80,
+                        "type": "TCP",
+                        "notes": "Apache"
+                    }, {
+                        "port": 443,
+                        "type": "TCP",
+                        "notes": "NGINX"
+                    }],
+                    "mac_address": "33:39:34:32:3a:31",
+                    "mac_vendor": "Extel"
+                },
+                {
+                    "hostname": "hostname",
+                    "ip_v4": "10.0.0.2",
+                    "ip_v6": "::2",
+                    "resource": [{
+                        "port": 80,
+                        "type": "TCP",
+                        "notes": "Apache"
+                    }, {
+                        "port": 443,
+                        "type": "TCP",
+                        "notes": "NGINX"
+                    }],
+                    "mac_address": "44:49:44:42:4a:41",
+                    "mac_vendor": "Antel"
+                }
+            ],
+            "status": "UP",
+            "first_seen": "2022-09-03T09:39:20.922387",
+            "last_seen": "2022-09-03T09:39:20.922387"
+        }
+
     def setUp(self):
         get_user_model().objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
         self.client.login(username='temporary', password='temporary')
@@ -103,6 +147,28 @@ class EntityTests(TestCase):
 
         resource = address.get('resource')
         self.assertEqual(resource[0].get('notes'), "Notes")
+
+    def test_swap_models(self):
+        self.update_entity_model(self.extended_entity)
+
+        addresses = Address.objects.all()
+        resources = Resource.objects.all()
+
+        # Two addresses
+        self.assertEqual(addresses.count(), 2)
+
+        # Two resources per address
+        self.assertEqual(resources.count(), 4)
+
+        self.update_entity_model(self.basic_entity)
+
+        addresses = Address.objects.all()
+        resources = Resource.objects.all()
+
+        self.assertEqual(addresses.count(), 1)
+        self.assertEqual(resources.count(), 2)
+
+
 
     # Helper methods
 
