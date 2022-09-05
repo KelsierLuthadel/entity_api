@@ -5,6 +5,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from entity import views as entities
 
 router = routers.DefaultRouter()
+router.register(r'ssids', entities.SSIDViewSet)
 router.register(r'resources', entities.ResourceViewSet)
 router.register(r'entities', entities.EntityViewSet)
 router.register(r'interfaces', entities.InterfaceViewSet)

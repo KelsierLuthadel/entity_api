@@ -3,7 +3,7 @@ from django.db import models
 from entity.models import Interface, Entity
 
 
-class AddressFilter(django_filters.FilterSet):
+class InterfaceFilter(django_filters.FilterSet):
     port = django_filters.NumberFilter(field_name="resources__port", lookup_expr="iexact")
     type = django_filters.CharFilter(field_name="resources__type", lookup_expr="iexact")
 

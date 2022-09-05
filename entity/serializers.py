@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Interface, Entity, Resource
+from .models import Interface, Entity, Resource, SSID
 
 
 def find_id(validated_address):
@@ -35,8 +35,8 @@ class ResourceSerializer(serializers.ModelSerializer):
 
 
 # noinspection PyUnresolvedReferences
-class AddressSerializer(serializers.ModelSerializer):
-    resource = ResourceSerializer(many=True)
+class InterfaceSerializer(serializers.ModelSerializer):
+    resource = ResourceSerializer(many=True, required=False)
     id = serializers.IntegerField(required=False)
 
     class Meta:
@@ -45,15 +45,11 @@ class AddressSerializer(serializers.ModelSerializer):
             'id',
             'type',
             'name',
+            'hardware',
             'ip_v4',
             'ip_v6',
             'physical_address',
             'vendor',
-            'channel',
-            'hardware',
-            'frequency',
-            'crypto',
-            'BSSID',
             'notes',
             'resource',
         )
@@ -63,7 +59,7 @@ class AddressSerializer(serializers.ModelSerializer):
         return rep
 
     def create(self, validated_data):
-        validated_resource = validated_data.pop('resource')
+        validated_resource = validated_data.pop('resource') if 'resource' in validated_data else []
         instance = Interface.objects.create(**validated_data)
 
         for resource in validated_resource:
@@ -108,9 +104,85 @@ def update_instance(instance, validated_data):
             pass
 
 
+class SSIDSerializer(serializers.ModelSerializer):
+    client = InterfaceSerializer(many=True, required=False)
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = SSID
+        fields = (
+            'id',
+            'type',
+            'hardware',
+            'name',
+            'channel',
+            'frequency',
+            'crypto',
+            'BSSID',
+            'notes',
+            'client',
+            'first_seen',
+            'last_seen',
+        )
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        return rep
+
+    def create(self, validated_data):
+        validated_interface = validated_data.pop('client') if 'client' in validated_data else []
+        instance = SSID.objects.create(**validated_data)
+
+        for interface in validated_interface:
+            validated_resource = interface.pop('resource') if 'resource' in interface else []
+
+            created_address = instance.client.create(**interface)
+
+            for resource in validated_resource:
+                created_address.resource.create(**resource)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        if 'client' in validated_data:
+            validated_interface = validated_data.pop('client')
+            if not find_id(validated_interface):
+                interfaces = instance.client.all()
+                for interface in interfaces:
+                    interface.resource.all().delete()
+                interfaces.all().delete()
+
+                for found in validated_interface:
+                    # extract resources from address
+                    if 'resource' in found:
+                        validated_resource = found.pop('resource')
+                        created_interface = instance.client.create(**found)
+
+                        for resource in validated_resource:
+                            created_interface.resource.create(**resource)
+            else:
+                for interface in validated_interface:
+                    if 'resource' in interface:
+                        validated_resources = interface.pop('resource')
+                        for resource in validated_resources:
+                            pk = resource.pop('id')
+                            resource_instance = Resource.objects.get(pk=pk)
+                            update_instance(resource_instance, resource)
+                            resource_instance.save()
+
+                    pk = interface.pop('id')
+                    address_instance = Interface.objects.get(pk=pk)
+                    update_instance(address_instance, interface)
+                    address_instance.save()
+
+        update_instance(instance, validated_data)
+        instance.save()
+        return instance
+
+
 # noinspection PyUnresolvedReferences
 class EntitySerializer(serializers.ModelSerializer):
-    interface = AddressSerializer(many=True)
+    interface = InterfaceSerializer(many=True, required=False)
     id = serializers.IntegerField(required=False)
 
     class Meta:
@@ -133,14 +205,12 @@ class EntitySerializer(serializers.ModelSerializer):
         return rep
 
     def create(self, validated_data):
-        # extract address
-        validated_interface = validated_data.pop('interface')
-        # create entity without address
+        validated_interface = validated_data.pop('interface') if 'interface' in validated_data else []
         instance = Entity.objects.create(**validated_data)
 
         for interface in validated_interface:
-            # extract resources from address
-            validated_resource = interface.pop('resource')
+            validated_resource = interface.pop('resource') if 'resource' in interface else []
+
             created_address = instance.interface.create(**interface)
 
             for resource in validated_resource:
