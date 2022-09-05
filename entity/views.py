@@ -13,7 +13,7 @@ class ResourceViewSet(viewsets.ModelViewSet):
 
 
 # noinspection PyUnresolvedReferences
-class AddressViewSet(viewsets.ModelViewSet):
+class InterfaceViewSet(viewsets.ModelViewSet):
     queryset = Interface.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = AddressSerializer

@@ -17,22 +17,39 @@ class EntityTests(TestCase):
         }
 
         cls.basic_address = {
-            "hostname": "localhost",
+            "type": "WIFI_AP",
+            "hardware": "IEEE802.11",
+            "name": "localhost",
             "ip_v4": "192.168.0.1",
             "ip_v6": "::1",
+            "physical_address": "33:39:34:32:3a:31",
+            "vendor": "Extel",
+            "channel": 10,
+            "frequency": 10,
+            "crypto": "WPA2-PSK",
+            "BSSID": "33:39:34:32:3a:31",
+            "notes": "local",
             "resource": [{
                 "port": 80,
                 "type": "TCP",
                 "notes": "Apache"
             }],
-            "mac_address": "33:39:34:32:3a:31",
-            "mac_vendor": "Extel"
+
         }
 
         cls.extended_address = {
-            "hostname": "localhost",
+            "type": "WIFI_AP",
+            "hardware": "IEEE802.11",
+            "name": "localhost",
             "ip_v4": "192.168.0.1",
             "ip_v6": "::1",
+            "physical_address": "33:39:34:32:3a:31",
+            "vendor": "Extel",
+            "channel": 10,
+            "frequency": 10,
+            "crypto": "WPA2-PSK",
+            "BSSID": "33:39:34:32:3a:31",
+            "notes": "Local",
             "resource": [{
                 "port": 80,
                 "type": "TCP",
@@ -42,8 +59,7 @@ class EntityTests(TestCase):
                 "type": "UDP",
                 "notes": "video"
             }],
-            "mac_address": "33:39:34:32:3a:31",
-            "mac_vendor": "Extel"
+
         }
 
         cls.basic_entity = {
@@ -53,7 +69,7 @@ class EntityTests(TestCase):
             "hardware": "Sky",
             "interface": [
                 {
-                    "hostname": "localhost",
+                    "name": "localhost",
                     "ip_v4": "192.168.0.1",
                     "ip_v6": "::1",
                     "resource": [{
@@ -65,8 +81,8 @@ class EntityTests(TestCase):
                         "type": "TCP",
                         "notes": "NGINX"
                     }],
-                    "mac_address": "33:39:34:32:3a:31",
-                    "mac_vendor": "Extel"
+                    "physical_address": "33:39:34:32:3a:31",
+                    "vendor": "Extel"
                 }
             ],
             "status": "UP",
@@ -81,12 +97,12 @@ class EntityTests(TestCase):
             "hardware": "Sky",
             "interface": [
                 {
-                    "hostname": "localhost",
+                    "name": "localhost",
                     "ip_v4": "192.168.0.1",
                     "ip_v6": "::1",
                     "resource": [],
-                    "mac_address": "1234",
-                    "mac_vendor": "Extel"
+                    "physical_address": "1234",
+                    "vendor": "Extel"
                 }
             ],
             "status": "UP",
@@ -101,7 +117,7 @@ class EntityTests(TestCase):
             "hardware": "RaspberryPi",
             "interface": [
                 {
-                    "hostname": "hacked",
+                    "name": "hacked",
                     "ip_v4": "10.0.0.1",
                     "ip_v6": "::ff",
                     "resource": [{
@@ -113,11 +129,11 @@ class EntityTests(TestCase):
                         "type": "TCP",
                         "notes": "NGINX"
                     }],
-                    "mac_address": "33:39:34:32:3a:31",
-                    "mac_vendor": "Extel"
+                    "physical_address": "33:39:34:32:3a:31",
+                    "vendor": "Extel"
                 },
                 {
-                    "hostname": "hostname",
+                    "name": "hostname",
                     "ip_v4": "10.0.0.2",
                     "ip_v6": "::2",
                     "resource": [{
@@ -129,8 +145,8 @@ class EntityTests(TestCase):
                         "type": "TCP",
                         "notes": "NGINX"
                     }],
-                    "mac_address": "44:49:44:42:4a:41",
-                    "mac_vendor": "Antel"
+                    "physical_address": "44:49:44:42:4a:41",
+                    "vendor": "Antel"
                 }
             ],
             "status": "DOWN",
@@ -154,14 +170,14 @@ class EntityTests(TestCase):
         uuid_bad = {
             "name": "Sky router",
             "interface": [{
-                "mac_address": "1234",
+                "physical_address": "1234",
                 "resource": []
             }]
         }
 
         response = self.client.post('/api/v1/entities/', uuid_bad, content_type='application/json')
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data['interface'][0].get('mac_address')[0], 'MAC Address must be valid')
+        self.assertEqual(response.data['interface'][0].get('physical_address')[0], 'MAC Address must be valid')
 
     def test_create_resource(self):
         self.create_resource(self.basic_resource)
@@ -221,11 +237,18 @@ class EntityTests(TestCase):
         self.create_address(self.basic_address)
         interface = self.get_interface(1)
 
-        self.assertEqual(interface.get('hostname'), 'localhost')
+        self.assertEqual(interface.get('name'), 'localhost')
         self.assertEqual(interface.get('ip_v4'), '192.168.0.1')
         self.assertEqual(interface.get('ip_v6'), '::1')
-        self.assertEqual(interface.get('mac_address'), '33:39:34:32:3a:31')
-        self.assertEqual(interface.get('mac_vendor'), 'Extel')
+        self.assertEqual(interface.get('physical_address'), '33:39:34:32:3a:31')
+        self.assertEqual(interface.get('vendor'), 'Extel')
+        self.assertEqual(interface.get('type'), 'WIFI_AP')
+        self.assertEqual(interface.get('hardware'), 'IEEE802.11')
+        self.assertEqual(interface.get('channel'), 10)
+        self.assertEqual(interface.get('frequency'), 10)
+        self.assertEqual(interface.get('crypto'), 'WPA2-PSK')
+        self.assertEqual(interface.get('BSSID'), '33:39:34:32:3a:31')
+        self.assertEqual(interface.get('notes'), 'local')
 
         self.assertEqual(len(interface.get('resource')), 1)
         resource = interface.get('resource')[0]
@@ -247,11 +270,11 @@ class EntityTests(TestCase):
 
         interface = self.get_interface(1)
 
-        self.assertEqual(interface.get('hostname'), 'localhost')
+        self.assertEqual(interface.get('name'), 'localhost')
         self.assertEqual(interface.get('ip_v4'), '192.168.0.1')
         self.assertEqual(interface.get('ip_v6'), '::1')
-        self.assertEqual(interface.get('mac_address'), '33:39:34:32:3a:31')
-        self.assertEqual(interface.get('mac_vendor'), 'Extel')
+        self.assertEqual(interface.get('physical_address'), '33:39:34:32:3a:31')
+        self.assertEqual(interface.get('vendor'), 'Extel')
 
         self.assertEqual(len(interface.get('resource')), 2)
         resource = interface.get('resource')[0]
@@ -263,11 +286,11 @@ class EntityTests(TestCase):
     def test_patch_address(self):
         self.create_address(self.basic_address)
         self.patch_address(resource_id=1, resource={
-            "hostname": "ultra-host"
+            "name": "ultra-host"
         })
 
         interface = self.get_interface(1)
-        self.assertEqual(interface.get('hostname'), 'ultra-host')
+        self.assertEqual(interface.get('name'), 'ultra-host')
 
         self.patch_address(resource_id=1, resource={
             "resource": [{
@@ -288,14 +311,14 @@ class EntityTests(TestCase):
                 "id": "1",
                 "notes": "nginx"
             }],
-            "mac_address": "00:00:00:00:00:00"
+            "physical_address": "00:00:00:00:00:00"
         })
         interface = self.get_interface(1)
-        self.assertEqual(interface.get('hostname'), 'ultra-host')
+        self.assertEqual(interface.get('name'), 'ultra-host')
         self.assertEqual(interface.get('ip_v4'), '127.0.0.1')
         self.assertEqual(interface.get('ip_v6'), '::ff')
-        self.assertEqual(interface.get('mac_address'), '00:00:00:00:00:00')
-        self.assertEqual(interface.get('mac_vendor'), 'Extel')
+        self.assertEqual(interface.get('physical_address'), '00:00:00:00:00:00')
+        self.assertEqual(interface.get('vendor'), 'Extel')
 
         self.assertEqual(len(interface.get('resource')), 1)
         resource = interface.get('resource')[0]
@@ -317,11 +340,11 @@ class EntityTests(TestCase):
         # Ensure the correct number of addresses
         self.assertEqual(len(entity.get('interface')), 1)
         interface = entity.get('interface')[0]
-        self.assertEqual(interface.get('hostname'), 'localhost')
+        self.assertEqual(interface.get('name'), 'localhost')
         self.assertEqual(interface.get('ip_v4'), '192.168.0.1')
         self.assertEqual(interface.get('ip_v6'), '::1')
-        self.assertEqual(interface.get('mac_address'), '33:39:34:32:3a:31')
-        self.assertEqual(interface.get('mac_vendor'), 'Extel')
+        self.assertEqual(interface.get('physical_address'), '33:39:34:32:3a:31')
+        self.assertEqual(interface.get('vendor'), 'Extel')
 
         resource = interface.get('resource')
         # Ensure the correct number of resources
@@ -356,11 +379,11 @@ class EntityTests(TestCase):
         self.assertEqual(len(entity.get('interface')), 2)
 
         address = entity.get('interface')[0]
-        self.assertEqual(address.get('hostname'), 'hacked')
+        self.assertEqual(address.get('name'), 'hacked')
         self.assertEqual(address.get('ip_v4'), '10.0.0.1')
         self.assertEqual(address.get('ip_v6'), '::ff')
-        self.assertEqual(address.get('mac_address'), '33:39:34:32:3a:31')
-        self.assertEqual(address.get('mac_vendor'), 'Extel')
+        self.assertEqual(address.get('physical_address'), '33:39:34:32:3a:31')
+        self.assertEqual(address.get('vendor'), 'Extel')
 
         # Ensure the correct number of resources
         self.assertEqual(len(address.get('resource')), 2)
@@ -373,11 +396,11 @@ class EntityTests(TestCase):
         self.assertEqual(resource[1].get('notes'), "NGINX")
 
         address = entity.get('interface')[1]
-        self.assertEqual(address.get('hostname'), 'hostname')
+        self.assertEqual(address.get('name'), 'hostname')
         self.assertEqual(address.get('ip_v4'), '10.0.0.2')
         self.assertEqual(address.get('ip_v6'), '::2')
-        self.assertEqual(address.get('mac_address'), '44:49:44:42:4a:41')
-        self.assertEqual(address.get('mac_vendor'), 'Antel')
+        self.assertEqual(address.get('physical_address'), '44:49:44:42:4a:41')
+        self.assertEqual(address.get('vendor'), 'Antel')
 
         resource = address.get('resource')
         # Ensure the correct number of resources
@@ -404,7 +427,7 @@ class EntityTests(TestCase):
             "hardware": "gibson",
             "interface": [{
                 "id": 1,
-                "hostname": "server",
+                "name": "server",
             }]
         })
 
@@ -415,7 +438,7 @@ class EntityTests(TestCase):
         # Ensure the correct number of addresses
         self.assertEqual(len(entity.get('interface')), 1)
         interface = entity.get('interface')[0]
-        self.assertEqual(interface.get('hostname'), 'server')
+        self.assertEqual(interface.get('name'), 'server')
 
         self.patch_entity(resource_id=1, resource={
             "name": "modem",
@@ -459,19 +482,19 @@ class EntityTests(TestCase):
         return self.post(table='resources', body=resource)
 
     def get_interface(self, resource_id):
-        return self.get(table='addresses', pk=resource_id)
+        return self.get(table='interfaces', pk=resource_id)
 
     def update_address(self, resource_id, resource):
-        return self.put(table='addresses', pk=resource_id, body=resource)
+        return self.put(table='interfaces', pk=resource_id, body=resource)
 
     def patch_address(self, resource_id, resource):
-        return self.patch(table='addresses', pk=resource_id, body=resource)
+        return self.patch(table='interfaces', pk=resource_id, body=resource)
 
     def delete_interface(self, resource_id):
-        return self.delete(table='addresses', pk=resource_id)
+        return self.delete(table='interfaces', pk=resource_id)
 
     def create_address(self, resource):
-        return self.post(table='addresses', body=resource)
+        return self.post(table='interfaces', body=resource)
 
     def get_resource(self, resource_id):
         return self.get(table='resources', pk=resource_id)

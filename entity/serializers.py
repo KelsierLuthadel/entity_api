@@ -43,16 +43,19 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Interface
         fields = (
             'id',
-            'hostname',
+            'type',
+            'name',
             'ip_v4',
             'ip_v6',
-            'mac_address',
-            'mac_vendor',
-            'resource',
-            'frequency',
+            'physical_address',
+            'vendor',
             'channel',
-            'SSID',
-            'BSSID'
+            'hardware',
+            'frequency',
+            'crypto',
+            'BSSID',
+            'notes',
+            'resource',
         )
 
     def to_representation(self, instance):

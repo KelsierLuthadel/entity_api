@@ -27,22 +27,18 @@ class Interface(models.Model):
         WIFI_AP = 'WIFI_AP', _('Wi-Fi AP'),
         WIFI_AD_HOC = 'WIFI_AD_HOC', _('Wi-Fi AD Hoc'),
 
-    hostname = models.CharField(max_length=253, default=None, blank=True, null=True)
+    type = models.CharField(max_length=40, choices=Type.choices,  default=None, blank=True, null=True)
+    hardware = models.CharField(max_length=40, default=None, blank=True, null=True)
+    name = models.CharField(max_length=253, default=None, blank=True, null=True)
     ip_v4 = models.GenericIPAddressField(default=None, blank=True, null=True)
     ip_v6 = models.GenericIPAddressField(default=None, blank=True, null=True)
-    resource = models.ManyToManyField(Resource)
-    mac_address = models.CharField(max_length=17, default=None, blank=True, null=True, validators=[RegexValidator(
+    physical_address = models.CharField(max_length=17, default=None, blank=True, null=True, validators=[RegexValidator(
         regex='^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$',
         message='MAC Address must be valid',
         code='invalid_mac_address'
     )])
-    mac_vendor = models.CharField(max_length=255, default=None, blank=True, null=True)
 
-    frequency = models.IntegerField(default=None, null=True,
-                                    validators=[
-                                        MaxValueValidator(65535),
-                                        MinValueValidator(1)
-                                    ])
+    vendor = models.CharField(max_length=40, default=None, blank=True, null=True)
 
     channel = models.IntegerField(default=None, null=True,
                                   validators=[
@@ -50,16 +46,24 @@ class Interface(models.Model):
                                       MinValueValidator(1)
                                   ])
 
-    SSID = models.CharField(max_length=253, default=None, blank=True, null=True)
+    frequency = models.IntegerField(default=None, null=True,
+                                    validators=[
+                                        MaxValueValidator(65535),
+                                        MinValueValidator(1)
+                                    ])
+
+    crypto = models.CharField(max_length=40, default=None, blank=True, null=True)
 
     BSSID = models.CharField(max_length=17, default=None, blank=True, null=True, validators=[RegexValidator(
         regex='^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$',
         message='MAC Address must be valid',
         code='invalid_mac_address'
     )])
+    notes = models.TextField(default=None, blank=True, null=True)
+    resource = models.ManyToManyField(Resource)
 
     def __str__(self):
-        return self.ip_v4
+        return self.name
 
 
 class Entity(models.Model):
@@ -69,10 +73,10 @@ class Entity(models.Model):
 
     name = models.CharField(max_length=253)
     type = models.CharField(max_length=40, default=None, blank=True, null=True)
-    os = models.CharField(max_length=255, default=None, blank=True, null=True)
-    hardware = models.CharField(max_length=255, default=None, blank=True, null=True)
+    os = models.CharField(max_length=40, default=None, blank=True, null=True)
+    hardware = models.CharField(max_length=40, default=None, blank=True, null=True)
     status = models.CharField(max_length=4, choices=Status.choices, default=Status.DOWN)
-    notes = models.CharField(max_length=255, default=None, blank=True, null=True)
+    notes = models.TextField(default=None, blank=True, null=True)
     interface = models.ManyToManyField(Interface)
     first_seen = models.DateTimeField(default=timezone.now, blank=True, verbose_name='first_seen')
     last_seen = models.DateTimeField(default=timezone.now, blank=True, verbose_name='last_seen')

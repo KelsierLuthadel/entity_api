@@ -7,7 +7,7 @@ from entity import views as entities
 router = routers.DefaultRouter()
 router.register(r'resources', entities.ResourceViewSet)
 router.register(r'entities', entities.EntityViewSet)
-router.register(r'addresses', entities.AddressViewSet)
+router.register(r'interfaces', entities.InterfaceViewSet)
 
 urlpatterns = [
     path('api/v1/', include(router.urls)),
