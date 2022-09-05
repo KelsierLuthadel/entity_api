@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Address, Entity, Resource
+from .models import Interface, Entity, Resource
 
 
 def find_id(validated_address):
@@ -40,7 +40,7 @@ class AddressSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
 
     class Meta:
-        model = Address
+        model = Interface
         fields = (
             'id',
             'hostname',
@@ -61,7 +61,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_resource = validated_data.pop('resource')
-        instance = Address.objects.create(**validated_data)
+        instance = Interface.objects.create(**validated_data)
 
         for resource in validated_resource:
             instance.resource.create(**resource)
@@ -107,7 +107,7 @@ def update_instance(instance, validated_data):
 
 # noinspection PyUnresolvedReferences
 class EntitySerializer(serializers.ModelSerializer):
-    address = AddressSerializer(many=True)
+    interface = AddressSerializer(many=True)
     id = serializers.IntegerField(required=False)
 
     class Meta:
@@ -116,7 +116,7 @@ class EntitySerializer(serializers.ModelSerializer):
             'id',
             'name',
             'notes',
-            'address',
+            'interface',
             'status',
             'os',
             'type',
@@ -131,14 +131,14 @@ class EntitySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # extract address
-        validated_address = validated_data.pop('address')
+        validated_interface = validated_data.pop('interface')
         # create entity without address
         instance = Entity.objects.create(**validated_data)
 
-        for address in validated_address:
+        for interface in validated_interface:
             # extract resources from address
-            validated_resource = address.pop('resource')
-            created_address = instance.address.create(**address)
+            validated_resource = interface.pop('resource')
+            created_address = instance.interface.create(**interface)
 
             for resource in validated_resource:
                 created_address.resource.create(**resource)
@@ -146,34 +146,34 @@ class EntitySerializer(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        if 'address' in validated_data:
-            validated_address = validated_data.pop('address')
-            if not find_id(validated_address):
-                addresses = instance.address.all()
-                for address in addresses:
-                    address.resource.all().delete()
-                addresses.all().delete()
+        if 'interface' in validated_data:
+            validated_interface = validated_data.pop('interface')
+            if not find_id(validated_interface):
+                interfaces = instance.interface.all()
+                for interface in interfaces:
+                    interface.resource.all().delete()
+                interfaces.all().delete()
 
-                for address in validated_address:
+                for interface in validated_interface:
                     # extract resources from address
-                    validated_resource = address.pop('resource')
-                    created_address = instance.address.create(**address)
+                    validated_resource = interface.pop('resource')
+                    created_interface = instance.interface.create(**interface)
 
                     for resource in validated_resource:
-                        created_address.resource.create(**resource)
+                        created_interface.resource.create(**resource)
             else:
-                for address in validated_address:
-                    if 'resource' in address:
-                        validated_resources = address.pop('resource')
+                for interface in validated_interface:
+                    if 'resource' in interface:
+                        validated_resources = interface.pop('resource')
                         for resource in validated_resources:
                             pk = resource.pop('id')
                             resource_instance = Resource.objects.get(pk=pk)
                             update_instance(resource_instance, resource)
                             resource_instance.save()
 
-                    pk = address.pop('id')
-                    address_instance = Address.objects.get(pk=pk)
-                    update_instance(address_instance, address)
+                    pk = interface.pop('id')
+                    address_instance = Interface.objects.get(pk=pk)
+                    update_instance(address_instance, interface)
                     address_instance.save()
 
         update_instance(instance, validated_data)

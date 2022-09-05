@@ -1,6 +1,6 @@
 from rest_framework import permissions, viewsets
 from entity.filters import EntitiesFilter, AddressFilter
-from entity.models import Address, Entity, Resource
+from entity.models import Interface, Entity, Resource
 from entity.serializers import EntitySerializer, AddressSerializer, ResourceSerializer
 
 
@@ -14,7 +14,7 @@ class ResourceViewSet(viewsets.ModelViewSet):
 
 # noinspection PyUnresolvedReferences
 class AddressViewSet(viewsets.ModelViewSet):
-    queryset = Address.objects.all()
+    queryset = Interface.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = AddressSerializer
     filterset_class = AddressFilter

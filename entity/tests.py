@@ -3,7 +3,7 @@ import json
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from entity.models import Resource, Address
+from entity.models import Resource, Interface
 
 
 # noinspection PyUnresolvedReferences
@@ -49,9 +49,9 @@ class EntityTests(TestCase):
         cls.basic_entity = {
             "name": "Sky router",
             "notes": "SKY+",
-            "type": "Router",
+            "type": "DEVICE",
             "hardware": "Sky",
-            "address": [
+            "interface": [
                 {
                     "hostname": "localhost",
                     "ip_v4": "192.168.0.1",
@@ -77,9 +77,9 @@ class EntityTests(TestCase):
         cls.bad_uuid = {
             "name": "Sky router",
             "notes": "SKY+",
-            "type": "Router",
+            "type": "WIFI_AP",
             "hardware": "Sky",
-            "address": [
+            "interface": [
                 {
                     "hostname": "localhost",
                     "ip_v4": "192.168.0.1",
@@ -97,9 +97,9 @@ class EntityTests(TestCase):
         cls.extended_entity = {
             "name": "Rogue Access Point",
             "notes": "Rogue",
-            "type": "Hacker",
+            "type": "WIFI_AD_HOC",
             "hardware": "RaspberryPi",
-            "address": [
+            "interface": [
                 {
                     "hostname": "hacked",
                     "ip_v4": "10.0.0.1",
@@ -153,7 +153,7 @@ class EntityTests(TestCase):
     def test_uuid_failure(self):
         uuid_bad = {
             "name": "Sky router",
-            "address": [{
+            "interface": [{
                 "mac_address": "1234",
                 "resource": []
             }]
@@ -161,7 +161,7 @@ class EntityTests(TestCase):
 
         response = self.client.post('/api/v1/entities/', uuid_bad, content_type='application/json')
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data['address'][0].get('mac_address')[0], 'MAC Address must be valid')
+        self.assertEqual(response.data['interface'][0].get('mac_address')[0], 'MAC Address must be valid')
 
     def test_create_resource(self):
         self.create_resource(self.basic_resource)
@@ -219,46 +219,46 @@ class EntityTests(TestCase):
 
     def test_create_address(self):
         self.create_address(self.basic_address)
-        address = self.get_address(1)
+        interface = self.get_interface(1)
 
-        self.assertEqual(address.get('hostname'), 'localhost')
-        self.assertEqual(address.get('ip_v4'), '192.168.0.1')
-        self.assertEqual(address.get('ip_v6'), '::1')
-        self.assertEqual(address.get('mac_address'), '33:39:34:32:3a:31')
-        self.assertEqual(address.get('mac_vendor'), 'Extel')
+        self.assertEqual(interface.get('hostname'), 'localhost')
+        self.assertEqual(interface.get('ip_v4'), '192.168.0.1')
+        self.assertEqual(interface.get('ip_v6'), '::1')
+        self.assertEqual(interface.get('mac_address'), '33:39:34:32:3a:31')
+        self.assertEqual(interface.get('mac_vendor'), 'Extel')
 
-        self.assertEqual(len(address.get('resource')), 1)
-        resource = address.get('resource')[0]
+        self.assertEqual(len(interface.get('resource')), 1)
+        resource = interface.get('resource')[0]
         self.assertEqual(resource.get('port'), 80)
         self.assertEqual(resource.get('type'), 'TCP')
         self.assertEqual(resource.get('notes'), 'Apache')
-        self.delete_address(1)
+        self.delete_interface(1)
 
     def test_update_address(self):
         self.create_address(self.basic_address)
         # Ensure correct number of addresses and resources in the table
-        self.assertEqual(Address.objects.all().count(), 1)
+        self.assertEqual(Interface.objects.all().count(), 1)
         self.assertEqual(Resource.objects.all().count(), 1)
         self.update_address(resource_id=1, resource=self.extended_address)
 
         # Ensure correct number of addresses and resources in the table
-        self.assertEqual(Address.objects.all().count(), 1)
+        self.assertEqual(Interface.objects.all().count(), 1)
         self.assertEqual(Resource.objects.all().count(), 2)
 
-        address = self.get_address(1)
+        interface = self.get_interface(1)
 
-        self.assertEqual(address.get('hostname'), 'localhost')
-        self.assertEqual(address.get('ip_v4'), '192.168.0.1')
-        self.assertEqual(address.get('ip_v6'), '::1')
-        self.assertEqual(address.get('mac_address'), '33:39:34:32:3a:31')
-        self.assertEqual(address.get('mac_vendor'), 'Extel')
+        self.assertEqual(interface.get('hostname'), 'localhost')
+        self.assertEqual(interface.get('ip_v4'), '192.168.0.1')
+        self.assertEqual(interface.get('ip_v6'), '::1')
+        self.assertEqual(interface.get('mac_address'), '33:39:34:32:3a:31')
+        self.assertEqual(interface.get('mac_vendor'), 'Extel')
 
-        self.assertEqual(len(address.get('resource')), 2)
-        resource = address.get('resource')[0]
+        self.assertEqual(len(interface.get('resource')), 2)
+        resource = interface.get('resource')[0]
         self.assertEqual(resource.get('port'), 80)
         self.assertEqual(resource.get('type'), 'TCP')
         self.assertEqual(resource.get('notes'), 'Apache')
-        self.delete_address(1)
+        self.delete_interface(1)
 
     def test_patch_address(self):
         self.create_address(self.basic_address)
@@ -266,8 +266,8 @@ class EntityTests(TestCase):
             "hostname": "ultra-host"
         })
 
-        address = self.get_address(1)
-        self.assertEqual(address.get('hostname'), 'ultra-host')
+        interface = self.get_interface(1)
+        self.assertEqual(interface.get('hostname'), 'ultra-host')
 
         self.patch_address(resource_id=1, resource={
             "resource": [{
@@ -276,9 +276,9 @@ class EntityTests(TestCase):
             }]
         })
 
-        address = self.get_address(1)
-        self.assertEqual(len(address.get('resource')), 1)
-        resource = address.get('resource')[0]
+        interface = self.get_interface(1)
+        self.assertEqual(len(interface.get('resource')), 1)
+        resource = interface.get('resource')[0]
         self.assertEqual(resource.get('port'), 81)
 
         self.patch_address(resource_id=1, resource={
@@ -290,20 +290,20 @@ class EntityTests(TestCase):
             }],
             "mac_address": "00:00:00:00:00:00"
         })
-        address = self.get_address(1)
-        self.assertEqual(address.get('hostname'), 'ultra-host')
-        self.assertEqual(address.get('ip_v4'), '127.0.0.1')
-        self.assertEqual(address.get('ip_v6'), '::ff')
-        self.assertEqual(address.get('mac_address'), '00:00:00:00:00:00')
-        self.assertEqual(address.get('mac_vendor'), 'Extel')
+        interface = self.get_interface(1)
+        self.assertEqual(interface.get('hostname'), 'ultra-host')
+        self.assertEqual(interface.get('ip_v4'), '127.0.0.1')
+        self.assertEqual(interface.get('ip_v6'), '::ff')
+        self.assertEqual(interface.get('mac_address'), '00:00:00:00:00:00')
+        self.assertEqual(interface.get('mac_vendor'), 'Extel')
 
-        self.assertEqual(len(address.get('resource')), 1)
-        resource = address.get('resource')[0]
+        self.assertEqual(len(interface.get('resource')), 1)
+        resource = interface.get('resource')[0]
         self.assertEqual(resource.get('port'), 81)
         self.assertEqual(resource.get('type'), 'TCP')
         self.assertEqual(resource.get('notes'), 'nginx')
 
-        self.delete_address(1)
+        self.delete_interface(1)
 
     def test_create_entity(self):
         self.create_entity(self.basic_entity)
@@ -311,19 +311,19 @@ class EntityTests(TestCase):
         self.assertEqual(entity.get('name'), "Sky router")
         self.assertEqual(entity.get('notes'), "SKY+")
         self.assertEqual(entity.get('status'), "UP")
-        self.assertEqual(entity.get('type'), "Router")
+        self.assertEqual(entity.get('type'), "DEVICE")
         self.assertEqual(entity.get('hardware'), "Sky")
 
         # Ensure the correct number of addresses
-        self.assertEqual(len(entity.get('address')), 1)
-        address = entity.get('address')[0]
-        self.assertEqual(address.get('hostname'), 'localhost')
-        self.assertEqual(address.get('ip_v4'), '192.168.0.1')
-        self.assertEqual(address.get('ip_v6'), '::1')
-        self.assertEqual(address.get('mac_address'), '33:39:34:32:3a:31')
-        self.assertEqual(address.get('mac_vendor'), 'Extel')
+        self.assertEqual(len(entity.get('interface')), 1)
+        interface = entity.get('interface')[0]
+        self.assertEqual(interface.get('hostname'), 'localhost')
+        self.assertEqual(interface.get('ip_v4'), '192.168.0.1')
+        self.assertEqual(interface.get('ip_v6'), '::1')
+        self.assertEqual(interface.get('mac_address'), '33:39:34:32:3a:31')
+        self.assertEqual(interface.get('mac_vendor'), 'Extel')
 
-        resource = address.get('resource')
+        resource = interface.get('resource')
         # Ensure the correct number of resources
         self.assertEqual(len(resource), 2)
         self.assertEqual(resource[0].get('port'), 80)
@@ -402,7 +402,7 @@ class EntityTests(TestCase):
         self.patch_entity(resource_id=1, resource={
             "name": "modem",
             "hardware": "gibson",
-            "address": [{
+            "interface": [{
                 "id": 1,
                 "hostname": "server",
             }]
@@ -413,14 +413,14 @@ class EntityTests(TestCase):
         self.assertEqual(entity.get('hardware'), "gibson")
 
         # Ensure the correct number of addresses
-        self.assertEqual(len(entity.get('address')), 1)
-        address = entity.get('address')[0]
-        self.assertEqual(address.get('hostname'), 'server')
+        self.assertEqual(len(entity.get('interface')), 1)
+        interface = entity.get('interface')[0]
+        self.assertEqual(interface.get('hostname'), 'server')
 
         self.patch_entity(resource_id=1, resource={
             "name": "modem",
             "hardware": "gibson",
-            "address": [{
+            "interface": [{
                 "id": 1,
                 "resource": [{
                     "id": 2,
@@ -432,8 +432,8 @@ class EntityTests(TestCase):
         entity = self.get_entity(1)
 
         self.delete_entity(1)
-        address = entity.get('address')[0]
-        resource = address.get('resource')
+        interface = entity.get('interface')[0]
+        resource = interface.get('resource')
         # Ensure the correct number of resources
         self.assertEqual(len(resource), 2)
         self.assertEqual(resource[1].get('notes'), "VAX")
@@ -458,7 +458,7 @@ class EntityTests(TestCase):
     def create_resource(self, resource):
         return self.post(table='resources', body=resource)
 
-    def get_address(self, resource_id):
+    def get_interface(self, resource_id):
         return self.get(table='addresses', pk=resource_id)
 
     def update_address(self, resource_id, resource):
@@ -467,7 +467,7 @@ class EntityTests(TestCase):
     def patch_address(self, resource_id, resource):
         return self.patch(table='addresses', pk=resource_id, body=resource)
 
-    def delete_address(self, resource_id):
+    def delete_interface(self, resource_id):
         return self.delete(table='addresses', pk=resource_id)
 
     def create_address(self, resource):

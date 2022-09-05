@@ -1,6 +1,6 @@
 import django_filters
 from django.db import models
-from entity.models import Address, Entity
+from entity.models import Interface, Entity
 
 
 class AddressFilter(django_filters.FilterSet):
@@ -8,7 +8,7 @@ class AddressFilter(django_filters.FilterSet):
     type = django_filters.CharFilter(field_name="resources__type", lookup_expr="iexact")
 
     class Meta:
-        model = Address
+        model = Interface
         fields = ['hostname', 'ip_v4', 'ip_v6', 'mac_address', 'mac_vendor', 'port', 'type']
         filter_overrides = {
             models.GenericIPAddressField: {
