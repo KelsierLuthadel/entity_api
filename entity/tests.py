@@ -3,7 +3,7 @@ import json
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from entity.models import Resource, Address, Entity
+from entity.models import Resource, Address
 
 
 class EntityTests(TestCase):
@@ -108,7 +108,7 @@ class EntityTests(TestCase):
         pass
 
     def tearDown(self):
-        # Clean up run after every test method.
+        self.client.delete('/api/v1/entities/1/', content_type='application/json')
         pass
 
     def test_bad(self):
@@ -131,6 +131,46 @@ class EntityTests(TestCase):
     def test_post(self):
         self.create_entity()
 
+    def test_address(self):
+        entity = {
+            "name": "Sky router",
+            "notes": "SKY+",
+            "type": "Router",
+            "hardware": "Sky",
+            "address": [
+                {
+                    "hostname": "localhost",
+                    "ip_v4": "192.168.0.1",
+                    "ip_v6": "::1",
+                    "frequency": 1000,
+                    "SSID": "home",
+                    "BSSID": "03:09:04:02:0a:01",
+                    "resource": [{
+                        "port": 80,
+                        "type": "TCP",
+                        "notes": "Apache"
+                    }, {
+                        "port": 443,
+                        "type": "TCP",
+                        "notes": "NGINX"
+                    }],
+                    "mac_address": "33:39:34:32:3a:31",
+                    "mac_vendor": "Extel"
+                }
+            ],
+            "status": "UP",
+            "first_seen": "2022-09-03T09:39:20.922387",
+            "last_seen": "2022-09-03T09:39:20.922387"
+        }
+
+        self.update_entity_model(entity)
+        entity = self.get_entity_model()
+
+        address = entity.get('address')[0]
+        self.assertEqual(address.get('frequency'), 1000)
+        self.assertEqual(address.get('SSID'), 'home')
+        self.assertEqual(address.get('BSID'), '03:09:04:02:0a:01')
+
     def test_get_model_top_level(self):
         entity = self.get_entity_model()
 
@@ -144,7 +184,6 @@ class EntityTests(TestCase):
         entity = self.get_entity_model()
 
         address = entity.get('address')[0]
-
         self.assertEqual(address.get('hostname'), 'localhost')
         self.assertEqual(address.get('ip_v4'), '192.168.0.1')
         self.assertEqual(address.get('ip_v6'), '::1')
@@ -152,11 +191,9 @@ class EntityTests(TestCase):
         self.assertEqual(address.get('mac_vendor'), 'Extel')
 
         resource = address.get('resource')
-
         self.assertEqual(resource[0].get('port'), 80)
         self.assertEqual(resource[0].get('type'), "TCP")
         self.assertEqual(resource[0].get('notes'), "Apache")
-
         self.assertEqual(resource[1].get('port'), 443)
         self.assertEqual(resource[1].get('type'), "TCP")
         self.assertEqual(resource[1].get('notes'), "NGINX")
@@ -215,9 +252,16 @@ class EntityTests(TestCase):
     def update_entity_model(self, new_model):
         response = self.client.put('/api/v1/entities/1/', new_model, content_type='application/json')
         self.assertEqual(response.status_code, 200)
+        return response
+
+    def patch_entity_model(self, new_model):
+        response = self.client.patch('/api/v1/entities/1/', new_model, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        return response
 
     def create_entity(self):
         response = self.client.post('/api/v1/entities/',
                                     {"name": "name", "address": [{"hostname": "host", "resource": []}]},
                                     content_type='application/json')
         self.assertEqual(response.status_code, 201)
+        return response

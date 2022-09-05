@@ -41,6 +41,10 @@ class AddressSerializer(serializers.ModelSerializer):
             'mac_address',
             'mac_vendor',
             'resource',
+            'frequency',
+            'channel',
+            'SSID',
+            'BSSID'
         )
 
     def to_representation(self, instance):
