@@ -5,9 +5,9 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from entity import views as entities
 
 router = routers.DefaultRouter()
-router.register(r'resource', entities.ResourceViewSet)
+router.register(r'resources', entities.ResourceViewSet)
 router.register(r'entities', entities.EntityViewSet)
-router.register(r'address', entities.AddressViewSet)
+router.register(r'addresses', entities.AddressViewSet)
 
 urlpatterns = [
     path('api/v1/', include(router.urls)),

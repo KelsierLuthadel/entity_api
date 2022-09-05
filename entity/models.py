@@ -1,13 +1,11 @@
-from datetime import datetime
-
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.db import models
 
 
 class Resource(models.Model):
-    class Status(models.TextChoices):
+    class Type(models.TextChoices):
         TCP = 'TCP', _('TCP')
         UDP = 'UDP', _('UDP')
 
@@ -15,7 +13,7 @@ class Resource(models.Model):
         MaxValueValidator(65535),
         MinValueValidator(1)
     ])
-    type = models.CharField(max_length=3, choices=Status.choices, default=Status.TCP)
+    type = models.CharField(max_length=3, choices=Type.choices, default=Type.TCP)
     notes = models.CharField(max_length=255, default=None, blank=True, null=True)
 
     def __str__(self):
