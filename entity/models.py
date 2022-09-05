@@ -21,6 +21,12 @@ class Resource(models.Model):
 
 
 class Interface(models.Model):
+    class Type(models.TextChoices):
+        WIFI_DEVICE = 'DEVICE', _('Device'),
+        WIFI_BRIDGED = 'WIFI_BRIDGED', _('Wi-Fi Bridged'),
+        WIFI_AP = 'WIFI_AP', _('Wi-Fi AP'),
+        WIFI_AD_HOC = 'WIFI_AD_HOC', _('Wi-Fi AD Hoc'),
+
     hostname = models.CharField(max_length=253, default=None, blank=True, null=True)
     ip_v4 = models.GenericIPAddressField(default=None, blank=True, null=True)
     ip_v6 = models.GenericIPAddressField(default=None, blank=True, null=True)
@@ -61,14 +67,8 @@ class Entity(models.Model):
         UP = 'UP', _('Up')
         DOWN = 'DOWN', _('Down')
 
-    class Type(models.TextChoices):
-        WIFI_DEVICE = 'DEVICE', _('Device'),
-        WIFI_BRIDGED = 'WIFI_BRIDGED', _('Wi-Fi Bridged'),
-        WIFI_AP = 'WIFI_AP', _('Wi-Fi AP'),
-        WIFI_AD_HOC = 'WIFI_AD_HOC', _('Wi-Fi AD Hoc'),
-
     name = models.CharField(max_length=253)
-    type = models.CharField(max_length=20, choices=Type.choices, default=None, blank=True, null=True)
+    type = models.CharField(max_length=40, default=None, blank=True, null=True)
     os = models.CharField(max_length=255, default=None, blank=True, null=True)
     hardware = models.CharField(max_length=255, default=None, blank=True, null=True)
     status = models.CharField(max_length=4, choices=Status.choices, default=Status.DOWN)

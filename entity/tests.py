@@ -49,7 +49,7 @@ class EntityTests(TestCase):
         cls.basic_entity = {
             "name": "Sky router",
             "notes": "SKY+",
-            "type": "DEVICE",
+            "type": "Server",
             "hardware": "Sky",
             "interface": [
                 {
@@ -77,7 +77,7 @@ class EntityTests(TestCase):
         cls.bad_uuid = {
             "name": "Sky router",
             "notes": "SKY+",
-            "type": "WIFI_AP",
+            "type": "Server",
             "hardware": "Sky",
             "interface": [
                 {
@@ -97,7 +97,7 @@ class EntityTests(TestCase):
         cls.extended_entity = {
             "name": "Rogue Access Point",
             "notes": "Rogue",
-            "type": "WIFI_AD_HOC",
+            "type": "Server",
             "hardware": "RaspberryPi",
             "interface": [
                 {
@@ -311,7 +311,7 @@ class EntityTests(TestCase):
         self.assertEqual(entity.get('name'), "Sky router")
         self.assertEqual(entity.get('notes'), "SKY+")
         self.assertEqual(entity.get('status'), "UP")
-        self.assertEqual(entity.get('type'), "DEVICE")
+        self.assertEqual(entity.get('type'), "Server")
         self.assertEqual(entity.get('hardware'), "Sky")
 
         # Ensure the correct number of addresses
@@ -334,67 +334,67 @@ class EntityTests(TestCase):
         self.assertEqual(resource[1].get('notes'), "NGINX")
         self.delete_entity(1)
 
-    # def test_update_entity(self):
-    #     self.create_entity(self.basic_entity)
-    #     # Make sure we have the correct number of Addresses and Resources
-    #     self.assertEqual(Address.objects.all().count(), 1)
-    #     self.assertEqual(Resource.objects.all().count(), 2)
-    #
-    #     self.update_entity(resource_id=1, resource=self.extended_entity)
-    #     # Make sure we have the correct number of Addresses and Resources
-    #     self.assertEqual(Address.objects.all().count(), 2)
-    #     self.assertEqual(Resource.objects.all().count(), 4)
-    #     entity = self.get_entity(1)
-    #
-    #     self.assertEqual(entity.get('name'), "Rogue Access Point")
-    #     self.assertEqual(entity.get('notes'), "Rogue")
-    #     self.assertEqual(entity.get('status'), "DOWN")
-    #     self.assertEqual(entity.get('type'), "Hacker")
-    #     self.assertEqual(entity.get('hardware'), "RaspberryPi")
-    #
-    #     # Ensure the correct number of addresses
-    #     self.assertEqual(len(entity.get('address')), 2)
-    #
-    #     address = entity.get('address')[0]
-    #     self.assertEqual(address.get('hostname'), 'hacked')
-    #     self.assertEqual(address.get('ip_v4'), '10.0.0.1')
-    #     self.assertEqual(address.get('ip_v6'), '::ff')
-    #     self.assertEqual(address.get('mac_address'), '33:39:34:32:3a:31')
-    #     self.assertEqual(address.get('mac_vendor'), 'Extel')
-    #
-    #     # Ensure the correct number of resources
-    #     self.assertEqual(len(address.get('resource')), 2)
-    #     resource = address.get('resource')
-    #     self.assertEqual(resource[0].get('port'), 88)
-    #     self.assertEqual(resource[0].get('type'), "UDP")
-    #     self.assertEqual(resource[0].get('notes'), "Apache")
-    #     self.assertEqual(resource[1].get('port'), 443)
-    #     self.assertEqual(resource[1].get('type'), "TCP")
-    #     self.assertEqual(resource[1].get('notes'), "NGINX")
-    #
-    #     address = entity.get('address')[1]
-    #     self.assertEqual(address.get('hostname'), 'hostname')
-    #     self.assertEqual(address.get('ip_v4'), '10.0.0.2')
-    #     self.assertEqual(address.get('ip_v6'), '::2')
-    #     self.assertEqual(address.get('mac_address'), '44:49:44:42:4a:41')
-    #     self.assertEqual(address.get('mac_vendor'), 'Antel')
-    #
-    #     resource = address.get('resource')
-    #     # Ensure the correct number of resources
-    #     self.assertEqual(len(address.get('resource')), 2)
-    #     self.assertEqual(resource[0].get('port'), 80)
-    #     self.assertEqual(resource[0].get('type'), "TCP")
-    #     self.assertEqual(resource[0].get('notes'), "Apache")
-    #     self.assertEqual(resource[1].get('port'), 443)
-    #     self.assertEqual(resource[1].get('type'), "TCP")
-    #     self.assertEqual(resource[1].get('notes'), "NGINX")
-    #
-    #     self.update_entity(resource_id=1, resource=self.basic_entity)
-    #     # Make sure we have the correct number of Addresses and Resources
-    #     self.assertEqual(Address.objects.all().count(), 1)
-    #     self.assertEqual(Resource.objects.all().count(), 2)
-    #
-    #     self.delete_entity(1)
+    def test_update_entity(self):
+        self.create_entity(self.basic_entity)
+        # Make sure we have the correct number of Addresses and Resources
+        self.assertEqual(Interface.objects.all().count(), 1)
+        self.assertEqual(Resource.objects.all().count(), 2)
+
+        self.update_entity(resource_id=1, resource=self.extended_entity)
+        # Make sure we have the correct number of Addresses and Resources
+        self.assertEqual(Interface.objects.all().count(), 2)
+        self.assertEqual(Resource.objects.all().count(), 4)
+        entity = self.get_entity(1)
+
+        self.assertEqual(entity.get('name'), "Rogue Access Point")
+        self.assertEqual(entity.get('notes'), "Rogue")
+        self.assertEqual(entity.get('status'), "DOWN")
+        self.assertEqual(entity.get('type'), "Server")
+        self.assertEqual(entity.get('hardware'), "RaspberryPi")
+
+        # Ensure the correct number of addresses
+        self.assertEqual(len(entity.get('interface')), 2)
+
+        address = entity.get('interface')[0]
+        self.assertEqual(address.get('hostname'), 'hacked')
+        self.assertEqual(address.get('ip_v4'), '10.0.0.1')
+        self.assertEqual(address.get('ip_v6'), '::ff')
+        self.assertEqual(address.get('mac_address'), '33:39:34:32:3a:31')
+        self.assertEqual(address.get('mac_vendor'), 'Extel')
+
+        # Ensure the correct number of resources
+        self.assertEqual(len(address.get('resource')), 2)
+        resource = address.get('resource')
+        self.assertEqual(resource[0].get('port'), 88)
+        self.assertEqual(resource[0].get('type'), "UDP")
+        self.assertEqual(resource[0].get('notes'), "Apache")
+        self.assertEqual(resource[1].get('port'), 443)
+        self.assertEqual(resource[1].get('type'), "TCP")
+        self.assertEqual(resource[1].get('notes'), "NGINX")
+
+        address = entity.get('interface')[1]
+        self.assertEqual(address.get('hostname'), 'hostname')
+        self.assertEqual(address.get('ip_v4'), '10.0.0.2')
+        self.assertEqual(address.get('ip_v6'), '::2')
+        self.assertEqual(address.get('mac_address'), '44:49:44:42:4a:41')
+        self.assertEqual(address.get('mac_vendor'), 'Antel')
+
+        resource = address.get('resource')
+        # Ensure the correct number of resources
+        self.assertEqual(len(address.get('resource')), 2)
+        self.assertEqual(resource[0].get('port'), 80)
+        self.assertEqual(resource[0].get('type'), "TCP")
+        self.assertEqual(resource[0].get('notes'), "Apache")
+        self.assertEqual(resource[1].get('port'), 443)
+        self.assertEqual(resource[1].get('type'), "TCP")
+        self.assertEqual(resource[1].get('notes'), "NGINX")
+
+        self.update_entity(resource_id=1, resource=self.basic_entity)
+        # Make sure we have the correct number of Addresses and Resources
+        self.assertEqual(Interface.objects.all().count(), 1)
+        self.assertEqual(Resource.objects.all().count(), 2)
+
+        self.delete_entity(1)
 
     def test_merge_entity(self):
         self.create_entity(self.basic_entity)
