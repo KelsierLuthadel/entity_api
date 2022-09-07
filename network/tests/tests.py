@@ -798,7 +798,7 @@ class SiteTests(TestCase):
 
     def is_date_newer(self, left, right):
         difference = iso8601.parse_date(right) - iso8601.parse_date(left)
-        if difference.total_seconds() < 0:
+        if difference.total_seconds() <= 0:
             print(iso8601.parse_date(right))
             print(iso8601.parse_date(left))
-        self.assertGreater(difference.total_seconds(), 0)
+        self.assertGreaterEqual(difference.total_seconds(), 0)
