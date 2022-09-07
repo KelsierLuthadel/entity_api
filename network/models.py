@@ -64,7 +64,7 @@ class Switch(models.Model):
     last_seen = models.DateTimeField(default=timezone.now, blank=True, verbose_name='last_seen')
     site_id = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='+',
                                 default=None, blank=True, null=True)
-    network_id = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='+',
+    network_id = models.ForeignKey(Network, on_delete=models.CASCADE, related_name='+',
                                    default=None, blank=True, null=True)
 
     def __str__(self):
@@ -102,7 +102,7 @@ class WiFi(models.Model):
     last_seen = models.DateTimeField(default=timezone.now, blank=True, verbose_name='last_seen')
     site_id = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='+',
                                 default=None, blank=True, null=True)
-    network_id = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='+',
+    network_id = models.ForeignKey(Network, on_delete=models.CASCADE, related_name='+',
                                    default=None, blank=True, null=True)
 
     def __str__(self):
@@ -145,7 +145,7 @@ class Interface(models.Model):
     site_id = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='+',
                                 default=None, blank=True, null=True)
     machine_id = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name='+',
-                                default=None, blank=True, null=True)
+                                   default=None, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -164,7 +164,7 @@ class Resource(models.Model):
     site_id = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='+',
                                 default=None, blank=True, null=True)
     interface_id = models.ForeignKey(Interface, on_delete=models.CASCADE, related_name='+',
-                                default=None, blank=True, null=True)
+                                     default=None, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -187,7 +187,7 @@ class Bluetooth(models.Model):
     site_id = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='+',
                                 default=None, blank=True, null=True)
     machine_id = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name='+',
-                                default=None, blank=True, null=True)
+                                   default=None, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -211,4 +211,3 @@ class Radio(models.Model):
                                 default=None, blank=True, null=True)
     machine_id = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name='+',
                                    default=None, blank=True, null=True)
-
