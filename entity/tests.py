@@ -733,8 +733,8 @@ class EntityTests(TestCase):
         self.patch_entity(created_entity, {"interface": [{"id": 2, "type": "wifi"}]})
         self.patch_entity(created_entity, {"interface": [{"id": 2, "hardware": "ieee"}]})
         self.patch_entity(created_entity, {"interface": [{"id": 2, "notes": "usb"}]})
-        self.patch_entity(created_entity, {"interface": [{"id": 2,  "physical_address": "33:39:34:32:3a:31"}]})
-        self.patch_entity(created_entity, {"interface": [{"id": 2,  "vendor": "Extel"}]})
+        self.patch_entity(created_entity, {"interface": [{"id": 2, "physical_address": "33:39:34:32:3a:31"}]})
+        self.patch_entity(created_entity, {"interface": [{"id": 2, "vendor": "Extel"}]})
         self.patch_entity(created_entity, {"interface": [{"id": 2, "resource": [{"id": 3, "type": "TCP"}]}]})
         self.patch_entity(created_entity, {"interface": [{"id": 2, "resource": [{"id": 3, "notes": "Apache"}]}]})
         self.patch_entity(created_entity, {"status": "UP"})
@@ -768,7 +768,6 @@ class EntityTests(TestCase):
         created.pop('first_seen')
         created.pop('last_seen')
         self.assertEqual(len(DeepDiff(created, ssid)), 0)
-
 
     # Helper methods
 

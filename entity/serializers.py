@@ -35,6 +35,11 @@ class ResourceSerializer(serializers.ModelSerializer):
 
 
 # noinspection PyUnresolvedReferences
+def object_or_empty(validated_data, field):
+    validated_resource = validated_data.pop(field) if field in validated_data else []
+    return validated_resource
+
+
 class InterfaceSerializer(serializers.ModelSerializer):
     resource = ResourceSerializer(many=True, required=False)
     id = serializers.IntegerField(required=False)
@@ -59,7 +64,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
         return rep
 
     def create(self, validated_data):
-        validated_resource = validated_data.pop('resource') if 'resource' in validated_data else []
+        validated_resource = object_or_empty(validated_data, 'resource')
         instance = Interface.objects.create(**validated_data)
 
         for resource in validated_resource:
@@ -130,12 +135,11 @@ class SSIDSerializer(serializers.ModelSerializer):
         return rep
 
     def create(self, validated_data):
-        validated_interface = validated_data.pop('client') if 'client' in validated_data else []
+        validated_interface = object_or_empty(validated_data, 'client')
         instance = SSID.objects.create(**validated_data)
 
         for interface in validated_interface:
-            validated_resource = interface.pop('resource') if 'resource' in interface else []
-
+            validated_resource = object_or_empty(interface, 'resource')
             created_address = instance.client.create(**interface)
 
             for resource in validated_resource:
@@ -205,12 +209,11 @@ class EntitySerializer(serializers.ModelSerializer):
         return rep
 
     def create(self, validated_data):
-        validated_interface = validated_data.pop('interface') if 'interface' in validated_data else []
+        validated_interface = object_or_empty(validated_data, 'interface')
         instance = Entity.objects.create(**validated_data)
 
         for interface in validated_interface:
-            validated_resource = interface.pop('resource') if 'resource' in interface else []
-
+            validated_resource = object_or_empty(interface, 'resource')
             created_address = instance.interface.create(**interface)
 
             for resource in validated_resource:

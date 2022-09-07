@@ -31,6 +31,7 @@ THIRD_PARTY = [
 
 LOCAL = [
     'entity.apps.EntityConfig',
+    'network.apps.EntityConfig',
 ]
 
 INSTALLED_APPS = CORE + THIRD_PARTY + LOCAL
