@@ -48,7 +48,7 @@ class SiteSerializer(serializers.ModelSerializer):
 
 class NetworkSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    site_id = serializers.IntegerField(required=False)
+    site_id = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
 
     class Meta:
         model = Network
@@ -82,8 +82,8 @@ class NetworkSerializer(serializers.ModelSerializer):
 
 class SwitchSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    site_id = serializers.IntegerField(required=False)
-    network_id = serializers.IntegerField(required=False)
+    site_id = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
+    network_id = serializers.PrimaryKeyRelatedField(queryset=Network.objects.all())
 
     class Meta:
         model = Switch
@@ -123,8 +123,8 @@ class SwitchSerializer(serializers.ModelSerializer):
 
 class WiFiSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    site_id = serializers.IntegerField(required=False)
-    network_id = serializers.IntegerField(required=False)
+    site_id = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
+    network_id = serializers.PrimaryKeyRelatedField(queryset=Network.objects.all())
 
     class Meta:
         model = WiFi
@@ -166,7 +166,7 @@ class WiFiSerializer(serializers.ModelSerializer):
 
 class MachineSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    site_id = serializers.IntegerField(required=False)
+    site_id = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
 
     class Meta:
         model = Machine
@@ -200,8 +200,8 @@ class MachineSerializer(serializers.ModelSerializer):
 
 class InterfaceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    site_id = serializers.IntegerField(required=False)
-    machine_id = serializers.IntegerField(required=False)
+    site_id = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
+    machine_id = serializers.PrimaryKeyRelatedField(queryset=Machine.objects.all())
 
     class Meta:
         model = Interface
@@ -236,8 +236,8 @@ class InterfaceSerializer(serializers.ModelSerializer):
 
 class ResourceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    site_id = serializers.IntegerField(required=False)
-    interface_id = serializers.IntegerField(required=False)
+    site_id = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
+    interface_id = serializers.PrimaryKeyRelatedField(queryset=Interface.objects.all())
 
     class Meta:
         model = Resource
@@ -269,8 +269,8 @@ class ResourceSerializer(serializers.ModelSerializer):
 
 class BluetoothSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    site_id = serializers.IntegerField(required=False)
-    machine_id = serializers.IntegerField(required=False)
+    site_id = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
+    machine_id = serializers.PrimaryKeyRelatedField(queryset=Machine.objects.all())
 
     class Meta:
         model = Bluetooth
@@ -303,8 +303,8 @@ class BluetoothSerializer(serializers.ModelSerializer):
 
 class RadioSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    site_id = serializers.IntegerField(required=False)
-    machine_id = serializers.IntegerField(required=False)
+    site_id = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
+    machine_id = serializers.PrimaryKeyRelatedField(queryset=Machine.objects.all())
 
     class Meta:
         model = Radio
